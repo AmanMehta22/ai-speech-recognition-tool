@@ -1,5 +1,36 @@
 # AI Speech Recognition Tool
 
+Simple notebook-based pipeline to download audio (via `yt-dlp`) and transcribe it with Whisper.
+
+Key files
+- `work.ipynb` — primary demo notebook (no code changes made).
+- `requirements.txt` — Python dependencies.
+- `audio.txt` — generated transcript output (ignored by `.gitignore`).
+
+Quick setup
+
+1. Create a Python environment (recommended):
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+2. Open and run the demo notebook `work.ipynb` in Jupyter or VS Code.
+
+How to demo
+- Run the YouTube download cell to produce `audio.mp4`/`audio.m4a`.
+- Run the transcription cell; the transcript is saved to `audio.txt`.
+
+Notes
+- This project is intentionally left as a notebook demo; no code or pipeline files were modified.
+- If you have a CUDA-capable GPU, the notebook detects and uses it when available.
+
+Contact
+- Add your name and contact details here before submission.
+# AI Speech Recognition Tool
+
 An experimental speech-to-text workflow that downloads audio from a YouTube URL and transcribes it with OpenAI Whisper. The current implementation is notebook-based and saves the final transcript to `audio.txt`.
 
 ## Overview
@@ -113,4 +144,3 @@ When prompted, enter a valid YouTube URL. The notebook will:
 Prepared for internal developer review by a third-year intern at Annam.ai, IIT Ropar.
 =======
 # ai-speech-recognition-tool
->>>>>>> faf27f5d5a044c8e063093941adb2dda5363f565
