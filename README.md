@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # AI Speech Recognition Tool
 
 An experimental speech-to-text workflow that downloads audio from a YouTube URL and transcribes it with OpenAI Whisper. The current implementation is notebook-based and saves the final transcript to `audio.txt`.
