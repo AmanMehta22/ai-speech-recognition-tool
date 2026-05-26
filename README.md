@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI Speech Recognition Tool
 
 An experimental speech-to-text workflow that downloads audio from a YouTube URL and transcribes it with OpenAI Whisper. The current implementation is notebook-based and saves the final transcript to `audio.txt`.
@@ -111,3 +112,6 @@ When prompted, enter a valid YouTube URL. The notebook will:
 ## Maintainer
 
 Prepared for internal developer review by a third-year intern at Annam.ai, IIT Ropar.
+=======
+# ai-speech-recognition-tool
+>>>>>>> faf27f5d5a044c8e063093941adb2dda5363f565
