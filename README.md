@@ -1,146 +1,158 @@
 # AI Speech Recognition Tool
 
-Simple notebook-based pipeline to download audio (via `yt-dlp`) and transcribe it with Whisper.
+A compact, notebook-first demo that downloads audio (via `yt-dlp`) from a YouTube URL and transcribes it with OpenAI Whisper. This repository contains a working demo, a helper script to extract audio, and notes for running and extending the pipeline.
 
-Key files
-- `work.ipynb` — primary demo notebook (no code changes made).
-- `requirements.txt` — Python dependencies.
-- `audio.txt` — generated transcript output (ignored by `.gitignore`).
-
-Quick setup
-
-1. Create a Python environment (recommended):
-
-```bash
-python -m venv .venv
-source .venv/Scripts/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-2. Open and run the demo notebook `work.ipynb` in Jupyter or VS Code.
-
-How to demo
-- Run the YouTube download cell to produce `audio.mp4`/`audio.m4a`.
-- Run the transcription cell; the transcript is saved to `audio.txt`.
-
-Notes
-- This project is intentionally left as a notebook demo; no code or pipeline files were modified.
-- If you have a CUDA-capable GPU, the notebook detects and uses it when available.
-
-Contact
-- Add your name and contact details here before submission.
-# AI Speech Recognition Tool
-
-An experimental speech-to-text workflow that downloads audio from a YouTube URL and transcribes it with OpenAI Whisper. The current implementation is notebook-based and saves the final transcript to `audio.txt`.
+Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+	- [Command-line audio extraction](#command-line-audio-extraction)
+	- [Notebook transcription demo](#notebook-transcription-demo)
+- [Output & Artifacts](#output--artifacts)
+- [Troubleshooting](#troubleshooting)
+- [Project Structure](#project-structure)
+- [Development & Next Steps](#development--next-steps)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Overview
 
-This project demonstrates a simple end-to-end audio transcription pipeline:
+This project demonstrates an end-to-end speech-to-text flow:
 
-1. Check CUDA availability with PyTorch.
-2. Download the best available audio stream from a YouTube link using `yt-dlp`.
-3. Transcribe the downloaded audio with Whisper (`large-v3`).
-4. Write the transcript to `audio.txt`.
+1. Download audio from a YouTube URL using `yt-dlp`.
+2. (Optional) Use a GPU (CUDA) if available for faster transcription.
+3. Transcribe audio using OpenAI Whisper (recommended: `large-v3`).
+4. Save the transcript to `audio.txt`.
 
-## Architecture
+## Features
 
-The project is organized as a lightweight, notebook-driven pipeline with four main stages:
+- Easy demo via Jupyter notebook
+- Simple CLI helper to extract audio (`extract_audio.py`)
+- GPU-aware transcription using PyTorch/Whisper
+- Clear outputs suitable for demos or prototyping
 
-```mermaid
-flowchart LR
-	A[User enters YouTube URL] --> B[Notebook orchestration]
-	B --> C[Audio extraction with yt-dlp]
-	C --> D[Downloaded audio file]
-	D --> E[Whisper transcription]
-	E --> F[Transcript written to audio.txt]
+## Requirements
 
-	B --> G[PyTorch device check]
-	G --> H{CUDA available?}
-	H -- Yes --> I[Run on GPU]
-	H -- No --> J[Run on CPU]
-	I --> E
-	J --> E
+- Python 3.10+
+- ffmpeg (required by `yt-dlp` and Whisper for many media formats)
+- Internet access (for model and media downloads)
+- Optional: NVIDIA GPU with CUDA for faster transcription
+
+Install system dependencies (example, Ubuntu):
+
+```bash
+sudo apt update
+sudo apt install -y ffmpeg python3-venv
 ```
 
-### Components
+## Quick Start
 
-- Notebook orchestration: `__notebook_source__.ipynb` controls execution order, input collection, extraction, transcription, and output writing.
-- Device detection: PyTorch is used to detect whether CUDA is available before loading the Whisper model.
-- Audio extraction: `yt-dlp` downloads the best available audio stream and includes a fallback extractor path if the standard method fails.
-- Transcription engine: Whisper `large-v3` performs speech recognition on the downloaded audio.
-- Output artifact: the final transcript is persisted to `audio.txt` for review or downstream use.
+1. Create and activate a virtual environment:
 
-### Data Flow
+```powershell
+# Windows (PowerShell)
+python -m venv .venv
+.\\.venv\\Scripts\\Activate.ps1
+```
 
-1. The user provides a YouTube URL.
-2. The notebook attempts to extract the audio stream.
-3. The extracted media is stored locally as an intermediate audio file.
-4. Whisper processes the media on GPU or CPU depending on the runtime environment.
-5. The resulting text is saved to `audio.txt`.
+```bash
+# macOS / Linux
+python -m venv .venv
+source .venv/bin/activate
+```
 
-### Design Notes
-
-- The architecture is intentionally simple so it can be inspected and modified by developers quickly.
-- The transcription model is large and resource-intensive, which favors accuracy over lightweight deployment.
-- The pipeline is sequential rather than service-based, so failures are easy to isolate at each stage.
-
-## Key Technologies
-
-- Python
-- PyTorch
-- Whisper
-- `yt-dlp`
-
-## Prerequisites
-
-- Python 3.10+ recommended
-- A working internet connection for downloading audio
-- Optional: NVIDIA GPU with CUDA support for faster transcription
-
-## Installation
-
-Create a virtual environment if needed, then install the dependencies:
+2. Install Python dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-If Whisper model downloads are required on first run, allow the process to complete before starting transcription.
+3. Extract audio from a YouTube URL (see next section) and then run the notebook demo to transcribe.
 
 ## Usage
 
-Open `__notebook_source__.ipynb` and run the cells in order.
+### Command-line audio extraction
 
-When prompted, enter a valid YouTube URL. The notebook will:
+This repo includes a small helper script to download the best audio stream from a YouTube URL. Run it and provide the URL when prompted.
 
-- attempt a standard audio extraction,
-- fall back to an Android-style extractor configuration if needed,
-- transcribe the downloaded file using Whisper,
-- save the transcript as `audio.txt`.
+```powershell
+python extract_audio.py
+# Enter a URL when prompted; the script writes audio.<ext> (e.g., audio.m4a)
+```
 
-## Output
+`extract_audio.py` tries two extraction methods (normal and an Android fallback). If both fail, check the stderr for yt-dlp errors.
 
-- `audio.txt`: final transcription output
-- `audio.mp4` or another downloaded audio file: intermediate media artifact generated by `yt-dlp`
+### Notebook transcription demo
 
-## Notes for Developers
+Open the provided notebook in Jupyter or VS Code (e.g., `stt.ipynb` or `work.ipynb` if present) and run cells in order. Typical steps in the notebook:
 
-- The notebook currently uses `whisper.load_model("large-v3")`, which is accurate but resource-intensive.
-- Transcription is set to run on GPU when CUDA is available, otherwise it falls back to CPU.
-- The current notebook assumes the downloaded file name matches the transcription input path. If you change the downloader output template, update the transcription path accordingly.
+- Verify PyTorch device / CUDA availability.
+- Load the Whisper model: `whisper.load_model("large-v3")` (or choose a smaller model for lower memory usage).
+- Run `model.transcribe("audio.<ext>")` and write `result["text"]` to `audio.txt`.
+
+Example Python snippet (from a notebook or script):
+
+```python
+import whisper
+
+model = whisper.load_model("large-v3")
+res = model.transcribe("audio.m4a")
+print(res["text"])
+with open("audio.txt", "w", encoding="utf-8") as f:
+		f.write(res["text"])
+```
+
+Notes:
+- For low-memory environments, use a smaller Whisper model (e.g., `small`, `base`).
+- First-run model loads may download model files and take time.
+
+## Output & Artifacts
+
+- `audio.<ext>` — downloaded audio file created by `extract_audio.py` or `yt-dlp` in the notebook
+- `audio.txt` — transcription output (UTF-8 plain text)
+
+## Troubleshooting
+
+- yt-dlp fails: ensure `ffmpeg` is installed and the URL is valid.
+- Whisper out-of-memory on GPU: switch to CPU or use a smaller model.
+- Slow transcription: ensure GPU drivers and CUDA are installed and correctly configured.
 
 ## Project Structure
 
-```text
+```
 .
-|-- __notebook_source__.ipynb
-|-- audio.txt
-|-- requirements.txt
+|-- extract_audio.py      # helper script to download audio from YouTube
+|-- stt.ipynb             # notebook demo (may be named work.ipynb in older versions)
+|-- REPORT.md             # short project report and recommendations
+|-- DEMO_CHECKLIST.md     # demo checklist and talking points
+|-- requirements.txt      # Python dependencies
+|-- audio.txt             # sample transcription output (optional)
 `-- README.md
 ```
 
-## Maintainer
+## Development & Next Steps
 
-Prepared for internal developer review by a third-year intern at Annam.ai, IIT Ropar.
-=======
-# ai-speech-recognition-tool
+Recommended improvements for production or reproducible demos:
+
+- Add `transcribe.py` CLI to run transcription outside the notebook.
+- Add tests and CI checks for environment and small smoke tests.
+- Provide a `Dockerfile` (or `docker-compose`) with optional GPU passthrough for repeatable demos.
+- Modularize the pipeline (download → preprocess → transcribe → postprocess).
+
+## Contributing
+
+Contributions are welcome. Open an issue or a pull request describing the change.
+
+## License
+
+This project does not include a license file. Add a `LICENSE` if you want to make the code open-source. For internal demos, follow your organization's policy.
+
+---
+
+If you'd like, I can:
+- add a `transcribe.py` CLI wrapper that uses the same notebook logic,
+- create a `requirements.txt` if it's missing or pin versions,
+- or convert the notebook into runnable scripts and add a `Dockerfile`.
+
