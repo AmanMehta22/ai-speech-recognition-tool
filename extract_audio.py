@@ -1,52 +1,58 @@
+# pip install ffmpeg -y
+# pip install -U yt-dlp
+
 import yt_dlp
 
 youtube_url = input("Enter YouTube URL: ")
 
-# -------------------------------
-# Method 1 : Normal extraction
-# -------------------------------
-method1_opts = {
-    'format': 'bestaudio/best',
-    'outtmpl': 'audio.%(ext)s',
-}
+# -----------------------------------
+# High Quality Audio Extraction
+# -----------------------------------
+ydl_opts = {
+    # Best available audio quality
+    'format': 'bestaudio[ext=m4a]/bestaudio/best',
 
-# -------------------------------
-# Method 2 : Android fallback
-# -------------------------------
-method2_opts = {
-    'format': 'bestaudio/best',
+    # Output filename
     'outtmpl': 'audio.%(ext)s',
+
+    # Ignore playlists
+    'noplaylist': True,
+
+    # Convert to WAV
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'wav',
+    }],
+
+    # High quality ffmpeg settings
+    'postprocessor_args': [
+        '-ar', '16000',     # 16kHz sample rate
+        '-ac', '1',         # mono channel
+        '-vn',              # remove video
+    ],
+
+    'prefer_ffmpeg': True,
+
+    # Better YouTube extraction reliability
     'extractor_args': {
         'youtube': {
             'player_client': ['android']
         }
-    }
+    },
+
+    # Quiet logs
+    'quiet': False,
 }
 
 try:
-    print("\nTrying Method 1 (Normal Extraction)...\n")
+    print("\nDownloading highest quality audio...\n")
 
-    with yt_dlp.YoutubeDL(method1_opts) as ydl:
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([youtube_url])
 
-    print("\nAudio downloaded successfully using Method 1!")
+    print("\nDone!")
+    print("Saved as: audio.wav")
 
 except Exception as e:
-
-    print("\nMethod 1 failed!")
+    print("\nDownload failed!")
     print("Error:", e)
-
-    print("\nTrying Method 2 (Android Fallback)...\n")
-
-    try:
-        with yt_dlp.YoutubeDL(method2_opts) as ydl:
-            ydl.download([youtube_url])
-
-        print("\nAudio downloaded successfully using Method 2!")
-
-    except Exception as e2:
-
-        print("\nMethod 2 also failed!")
-        print("Error:", e2)
-
-        print("\nCould not extract audio from this URL.")
